@@ -1,14 +1,19 @@
 import express from "express";
+import session from "express-session";
 import multer from "multer";
 import fs from "fs";
 import { google } from "googleapis";
 import path from "path";
 
-
 const __dirname = path.resolve();
 const app = express();
+
 app.use(express.static(path.join(__dirname, "public")));
-app.use(session({ secret: "video-secret", resave: false, saveUninitialized: true }));
+app.use(session({
+  secret: "video-secret",
+  resave: false,
+  saveUninitialized: true
+}));
 
 
 // Google OAuth setup
