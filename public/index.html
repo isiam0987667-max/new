@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+.bottom div{font-size:12px;color:#ccc;text-align:center}
+.spacer{height:70px}
+#playerOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:50;flex-direction:column;align-items:center;justify-content:center}
+#playerOverlay video{width:90%;max-height:80%}
+#closePlayer{position:absolute;top:10px;right:10px;font-size:24px;color:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="header"><div class="tabs"><div class="tab active">All</div><div class="tab">Music</div><div class="tab">Mixes</div><div class="tab">Natok</div><div class="tab">Live</div></div></div>
+<div class="feed">
+<h3>Upload Video (Google login required)</h3>
+<input type="file" id="file">
+<button onclick="upload()">Upload</button>
+<h3>Videos</h3>
+<div id="videoList"></div>
+</div>
+<div class="spacer"></div>
+<div class="bottom"><div>Home</div><div>Shorts</div><div>＋</div><div>Subs</div><div>You</div></div>
+<div id="playerOverlay"><div id="closePlayer" onclick="closePlayer()">×</div><video id="mainPlayer" controls></video></div>
+<script>
+async function upload(){
+const f = document.getElementById('file').files[0];
+if(!f){alert('Select a video');return}
+const fd = new FormData();
+fd.append('video', f);
+const res = await fetch('/upload',{method:'POST',body:fd});
+const data = await res.json();
+alert('Uploaded: '+data.name);
+loadVideos();
+}
+function openPlayer(id){
+const overlay = document.getElementById('playerOverlay');
+const player = document.getElementById('mainPlayer');
+player.src = '/video/'+id;
+overlay.style.display='flex';
+player.play();
+}
+function closePlayer(){
+const overlay = document.getElementById('playerOverlay');
+const player = document.getElementById('mainPlayer');
+player.pause();
+overlay.style.display='none';
+}
+async function loadVideos(){
+const res = await fetch('/videos');
+const data = await res.json();
+const list = document.getElementById('videoList');
+list.innerHTML='';
+data.forEach(v=>{
+const card = document.createElement('div');
+card.className='card';
+card.innerHTML=`<div class='thumb'><img src='https://via.placeholder.com/640x360?text=${v.name}'></div><div class='info'><div class='avatar'></div><div><div class='title'>${v.name}</div><div class='meta'>Public Video</div></div></div>`;
+card.onclick=()=>openPlayer(v.id);
+list.appendChild(card);
+});
+}
+loadVideos();
+</script>
+</body>
+</html>
